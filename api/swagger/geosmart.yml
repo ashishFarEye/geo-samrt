@@ -1,0 +1,166 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: GeoSmart
+  description: This project contains APIs for pelias and esmap
+  contact:
+    name: FarEye
+    url: https://www.getfareye.com
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  "/healthz":
+    get:
+      description: Check Health Of The Application
+      operationId: checkHealth
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK message
+          schema:
+            type: string
+            enum:
+              - OK
+
+  "/geosmart":
+    post:
+      description: Geosmart
+      operationId: geosmart
+      parameters:
+        - name: geosmart
+          in: body
+          description: Input Address
+          required: true
+          schema:
+            "$ref": "#/definitions/GeoSmart"
+      responses:
+        '200':
+          description: Geocode Response
+          schema:
+            "$ref": "#/definitions/GeoSmartResponse"
+        '500':
+          description: Error
+          schema:
+            "$ref": "#/definitions/GeoSmartResponse"
+        default:
+          description: Error
+          schema:
+            "$ref": "#/definitions/GeoSmartResponse"
+
+  "/geocoding_compare":
+    post:
+      description: Get response from alpha phased geocoding service and compare with production response.
+      operationId: compare
+      parameters:
+        - name: data
+          in: body
+          description: Input request and response
+          required: true
+          schema:
+            "$ref": "#/definitions/GeoCodingCompare"
+      responses:
+        '200':
+          description: Response
+          schema:
+            type: string
+        default:
+          description: Error
+          schema:
+            type: string
+
+
+definitions:
+  GeoAddress:
+    type: object
+    properties:
+      address:
+        type: string
+      pin:
+        type: string
+      country:
+        type: string
+      uuid:
+        type: string
+
+  Address:
+    type: object
+    properties:
+      line1:
+        type: string
+      line2:
+        type: string
+      landmark:
+        type: string
+      pincode:
+        type: string
+      countryCode:
+        type: string
+      uuid:
+        type: string
+
+  GeoSmart:
+    type: object
+    properties:
+      address:
+        additionalProperties:
+          "$ref": "#/definitions/GeoAddress"
+      partial:
+        type: boolean
+
+  GeoSmartResponse:
+    type: object
+    properties:
+      success:
+        additionalProperties:
+          "$ref": "#/definitions/Success"
+      fail:
+        additionalProperties:
+          "$ref": "#/definitions/Fail"
+      address:
+        additionalProperties:
+          "$ref": "#/definitions/GeoAddress"
+
+  Success:
+    type: object
+    properties:
+      lat:
+        type: number
+        format: float64
+      lng:
+        type: number
+        format: float64
+      accuracy:
+        type: string
+      source:
+        type: string
+      address:
+        type: string
+      address_comp:
+        type: string
+
+  Fail:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+
+
+  GeoCodingCompare:
+    type: object
+    properties:
+      envCompanyId:
+        type: string
+      request:
+        type: object
+        additionalProperties:
+          "$ref": "#/definitions/Address"
+      response:
+        type: object
+        additionalProperties:
+          "$ref": "#/definitions/Success"
